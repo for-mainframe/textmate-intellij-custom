@@ -1,0 +1,80 @@
+// Available variables which can be used inside of strings.
+// ${workspaceRoot}: the root folder of the team
+// ${file}: the current opened file
+// ${fileBasename}: the current opened file's basename
+// ${fileDirname}: the current opened file's dirname
+// ${fileExtname}: the current opened file's extension
+// ${cwd}: the current working directory of the spawned process
+
+// A task runner that calls a custom npm script that compiles the extension.
+{
+    "version": "2.0.0",
+
+    "tasks": [
+        {
+            "label": "npm",
+
+            // we want to run npm
+            "command": "npm",
+
+            // the command is a shell script
+            "type": "shell",
+
+            // show the output window only if unrecognized errors occur.
+
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared",
+                "clear": true
+            },            
+
+            "group": "build",
+
+            // we run the custom script "compile" as defined in package.json
+            "args": ["run", "compile:test", "--loglevel", "silent"],
+
+            // The tsc compiler is started in watching mode
+            "isBackground": false,
+
+            // use the standard tsc in watch mode problem matcher to find compile problems in the output.
+            "problemMatcher": "$tsc-watch"
+        },
+        {
+            "label": "prepareTest",
+            "command": "node",
+            "type": "shell",
+            "args": ["'${workspaceFolder}/build/bin/prepareWorkspace.js'"],
+            "dependsOn": [
+                "npm"
+            ]
+        },
+        {
+            "label": "generateTMGrammar",
+            "command": "npm",
+            "type": "shell",
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared",
+                "group": "tmgrammar"
+            },
+            "group": "build",
+            "args": ["run", "generate:tmgrammar"],
+            "problemMatcher": "$tsc-watch"
+        },
+        {
+            "label": "textmateTests",
+            "type": "shell",
+            "command": "npm",
+            "args": ["run", "test:tmgrammar"],
+            "group": "test",
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared",
+                "group": "tmgrammar"
+            },
+            "dependsOn": [
+                "generateTMGrammar"
+            ]
+        }
+    ]
+}
